@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!--指定使用log4j打印mybatis日志-->
+        <setting name="logImpl" value="LOG4J"/>
+    </settings>
+    <!--因为原有配置已经在spring配置文件中引入，所以不需要在此处写一遍，可以在里边加别名等，文件可以为空-->
+    <!--加别名-->
+    <typeAliases>
+        <package name="com.mark.Model"></package>
+    </typeAliases>
+    <plugins>
+        <!--注意：分页助手的插件，配置在mapper之前-->
+        <plugin interceptor="com.github.pagehelper.PageHelper">
+            <!--指定方言-->
+            <property name="dialect" value="oracle"/>
+        </plugin>
+    </plugins>
+</configuration>

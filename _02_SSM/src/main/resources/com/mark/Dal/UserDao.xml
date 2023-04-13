@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+namespace：命名空间和c#一致
+-->
+<mapper namespace="com.mark.Dal.UserDao">
+    <!--数据库字段和java变量名称不一致则无法自动封装数据
+       * 给sql语句无法识别的字段起别名同java变量一致,缺点：每次查询都需要设置别名
+       * 使用sql片段，缺点：不灵活
+       * 使用ResultMap：
+            定义<resultMap>标签
+            在<select>中将 resultType 替换为 resultMap
+    -->
+
+    <!--resultMap
+       id:唯一标识
+       type：映射类型，支持别名
+       注意：因为已经在mybatis-config.xml中配置了com.mark.Model别名，所以我们这边对com.mark.Model下的返回值类型可以做省略
+    -->
+    <resultMap id="usermap" type="User">
+        <!--
+        id:表主键字段映射
+          column：表字段名  property：要映射的名称（类变量名）
+        result：表一般字段映射
+          column：表字段名  property：要映射的名称（类变量名）
+        -->
+        <!--<id column="" property=""/>-->
+        <result column="name" property="username" />
+    </resultMap>
+
+    <select id="selectUserAll" resultMap="usermap">
+        select t.* from 用户表 t order by to_number(t.id)
+    </select>
+
+    <select id="GetUserByID" resultMap="usermap">
+        select * from 用户表 t where t.id = #{id}
+    </select>
+
+    <!--指定useGeneratedKeys、keyProperty后可以返回改条信息的ID值
+      * 这里的order="BEFORE"指的是 selectKey先执行，如果为AFTER，则insert先执行
+      * trim suffixOverrides="," suffix="" 将最后一个逗号替换为""。如果没有suffix则默认为空格
+    -->
+    <insert id="UserAdd" useGeneratedKeys="true" keyProperty="id">
+        <selectKey keyProperty="id" keyColumn="id" resultType="java.lang.String" order="BEFORE" >
+            select to_char(NULLIF(max(to_number(id) ),0)+1) from 用户表
+        </selectKey>
+        insert into 用户表(
+        <trim suffixOverrides=",">
+            <if test="id !=null and id !=''">
+                id,
+            </if>
+            <if test="username !=null and username !=''">
+                name,
+            </if>
+            <if test="sex !=null and sex !=''">
+                sex,
+            </if>
+            <if test="age !=null and age !=''">
+                age,
+            </if>
+            <if test="address !=null and address !=''">
+                address,
+            </if>
+            <if test="phonenumber !=null and phonenumber !=''">
+                phonenumber,
+            </if>
+        </trim>
+        )
+        values(
+        <trim suffixOverrides=",">
+            <if test="id !=null and id !=''">
+                #{id},
+            </if>
+            <if test="username !=null and username !=''">
+                #{username},
+            </if>
+            <if test="sex !=null and sex !=''">
+                #{sex},
+            </if>
+            <if test="age !=null and age !=''">
+                #{age},
+            </if>
+            <if test="address !=null and address !=''">
+                #{address},
+            </if>
+            <if test="phonenumber !=null and phonenumber !=''">
+                #{phonenumber},
+            </if>
+        </trim>
+        )
+    </insert>
+
+    <update id="UserUpd">
+        update 用户表 t
+        <set>
+            <if test="username !=null and username !=''">
+                t.name = #{username},
+            </if>
+            <if test="sex !=null and sex !=''">
+                t.sex = #{sex},
+            </if>
+            <if test="age !=null and age !=''">
+                t.age = #{age},
+            </if>
+            <if test="address !=null and address !=''">
+                t.address = #{address},
+            </if>
+            <if test="phonenumber !=null and phonenumber !=''">
+                t.phonenumber = #{phonenumber},
+            </if>
+        </set>
+        where t.id = #{id}
+    </update>
+
+    <delete id="UserDel">
+        delete from 用户表 t where t.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
